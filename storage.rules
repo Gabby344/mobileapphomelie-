@@ -1,0 +1,22 @@
+rules_version = '2';
+service firebase.storage {
+  match /b/{bucket}/o {
+
+    function profile() { return firestore.get(/databases/(default)/documents/utilisateurs/$(request.auth.uid)).data; }
+    function isStaff() {
+      return request.auth != null
+          && firestore.exists(/databases/(default)/documents/utilisateurs/$(request.auth.uid))
+          && profile().actif == true
+          && profile().role in ['Pretre', 'SuperAdmin'];
+    }
+
+    // Médias des homélies : lecture publique, écriture réservée au personnel, avec limites de type et de taille.
+    match /homelies/{homelieId}/{fileName} {
+      allow read: if true;
+      allow create, update: if isStaff() && (
+          (request.resource.contentType.matches('audio/.*') && request.resource.size < 50 * 1024 * 1024) ||
+          (request.resource.contentType.matches('video/.*') && request.resource.size < 200 * 1024 * 1024));
+      allow delete: if isStaff();
+    }
+  }
+}

@@ -1,0 +1,64 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    // ---------- Fonctions utilitaires ----------
+    function signedIn() { return request.auth != null; }
+    function profilePath() { return /databases/$(database)/documents/utilisateurs/$(request.auth.uid); }
+    function hasProfile() { return signedIn() && exists(profilePath()); }
+    function me() { return get(profilePath()).data; }
+    function isSuperAdmin() { return hasProfile() && me().role == 'SuperAdmin' && me().actif == true; }
+    function isPretre()     { return hasProfile() && me().role == 'Pretre'     && me().actif == true; }
+
+    function validHomelie() {
+      let d = request.resource.data;
+      return d.titre is string && d.titre.size() > 0 && d.titre.size() <= 250
+          && d.contenuTexte is string && d.contenuTexte.size() < 100000
+          && d.type in ['Dimanche', 'MesseMatinale', 'Solennite']
+          && d.supprime is bool
+          && d.paroisseId is string;
+    }
+
+    // ---------- Paroisses : lecture publique, écriture SuperAdmin ----------
+    match /paroisses/{id} {
+      allow read: if true;
+      allow write: if isSuperAdmin();
+    }
+
+    // ---------- Utilisateurs : on ne lit que son profil (sauf SuperAdmin) ----------
+    match /utilisateurs/{uid} {
+      allow read: if signedIn() && (request.auth.uid == uid || isSuperAdmin());
+      allow write: if isSuperAdmin();      // personne ne peut s'attribuer un rôle soi-même
+    }
+
+    // ---------- Homélies ----------
+    match /homelies/{id} {
+      allow read: if true;
+      allow create: if validHomelie() && (
+          isSuperAdmin() ||
+          (isPretre() && request.resource.data.auteurId == request.auth.uid
+                      && request.resource.data.paroisseId == me().paroisseId));
+      allow update: if isSuperAdmin() || (
+          isPretre() && resource.data.auteurId == request.auth.uid
+                     && request.resource.data.auteurId == resource.data.auteurId
+                     && request.resource.data.paroisseId == resource.data.paroisseId
+                     && validHomelie());
+      allow delete: if isSuperAdmin();     // les prêtres font une suppression logique (supprime = true)
+    }
+
+    // ---------- Programme de la semaine ----------
+    match /programme_semaine/{id} {
+      allow read: if true;
+      allow create, delete: if isSuperAdmin();
+      allow update: if isSuperAdmin() || (
+          isPretre() && resource.data.pretreId == request.auth.uid
+                     && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['statut', 'notes', 'updatedAt']));
+    }
+
+    // ---------- Liturgie du jour ----------
+    match /liturgie_jour/{id} {
+      allow read: if true;
+      allow write: if isSuperAdmin();
+    }
+  }
+}

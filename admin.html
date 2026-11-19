@@ -1,0 +1,155 @@
+<!doctype html>
+<html lang="fr">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <title>Espace prêtre — Homélies Kolwezi</title>
+  <meta name="theme-color" content="#8b1e3f">
+  <meta name="robots" content="noindex">
+  <link rel="manifest" href="manifest.json">
+  <link rel="icon" href="icons/icon-192.png">
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <header class="top">
+    <div><h1>Espace prêtre</h1><small>Diocèse de Kolwezi</small></div>
+    <div class="top-actions">
+      <button id="themeBtn" aria-label="Changer de thème">Clair / sombre</button>
+      <a href="index.html">Accueil</a>
+      <button id="logoutBtn" hidden>Déconnexion</button>
+    </div>
+  </header>
+  <div id="netBadge" class="net" role="status"></div>
+
+  <!-- ===== Connexion ===== -->
+  <main class="wrap" id="login">
+    <section class="panel">
+      <h2>Connexion</h2>
+      <p class="mut">Les comptes sont créés par l'administrateur du diocèse.</p>
+      <form id="loginForm" class="stack">
+        <label>Email <input id="lg-email" type="email" autocomplete="username" required></label>
+        <label>Mot de passe <input id="lg-pwd" type="password" autocomplete="current-password" required></label>
+        <button class="btn" id="lg-btn">Se connecter</button>
+        <button type="button" class="btn btn-sec" id="forgot">Mot de passe oublié</button>
+        <p id="loginMsg" role="alert"></p>
+      </form>
+    </section>
+  </main>
+
+  <!-- ===== Application ===== -->
+  <div id="app" hidden>
+    <p id="who" class="wrap mut" style="padding-bottom:0"></p>
+    <nav class="tabs" id="adminTabs" role="tablist"></nav>
+
+    <main class="wrap">
+      <!-- Programme -->
+      <section id="p-programme" data-panel hidden>
+        <form id="progForm" class="panel stack" data-sa hidden>
+          <h3 id="pg-title">Ajouter un créneau</h3>
+          <input type="hidden" id="pg-id">
+          <div class="grid2">
+            <label>Date <input type="date" id="pg-date" required></label>
+            <label>Célébration
+              <select id="pg-type"><option value="Dimanche">Dimanche</option><option value="MesseMatinale">Messe matinale</option><option value="Solennite">Solennité</option></select>
+            </label>
+          </div>
+          <label>Paroisse <select id="pg-paroisse" required></select></label>
+          <label>Prêtre <select id="pg-pretre" required></select></label>
+          <div class="grid2">
+            <label>Statut <select id="pg-statut"><option value="Prevu">Prévu</option><option value="Enregistre">Enregistré</option><option value="Publie">Publié</option></select></label>
+            <label>Notes <input id="pg-notes" maxlength="300"></label>
+          </div>
+          <div class="row"><button class="btn">Enregistrer le créneau</button><button type="button" class="btn btn-sec" id="pg-cancel" hidden>Annuler</button></div>
+        </form>
+        <div class="panel"><h3 id="pg-list-title">Mes prochains créneaux</h3><div id="progList"></div></div>
+      </section>
+
+      <!-- Rédiger -->
+      <section id="p-homelie" data-panel hidden>
+        <form id="hForm" class="panel stack">
+          <h3 id="h-formTitle">Nouvelle homélie</h3>
+          <p id="draftInfo" class="mut"></p>
+          <label data-sa hidden>Paroisse <select id="h-paroisse"></select></label>
+          <label data-sa hidden>Nom du prêtre (optionnel) <input id="h-auteur" maxlength="150"></label>
+          <label>Titre <input id="h-titre" maxlength="250" required></label>
+          <div class="grid2">
+            <label>Date <input type="date" id="h-date" required></label>
+            <label>Type
+              <select id="h-type"><option value="Dimanche">Dimanche</option><option value="MesseMatinale">Messe matinale</option><option value="Solennite">Solennité</option></select>
+            </label>
+          </div>
+          <label>Créneau du programme (optionnel) <select id="h-programme"><option value="">Aucun</option></select></label>
+          <label>Texte de l'homélie <span class="mut">(# titre, **gras**, *italique*, &gt; citation, - liste)</span>
+            <textarea id="h-texte" required></textarea></label>
+          <div class="grid2">
+            <label>Audio — lien <input id="h-audio-url" type="url" placeholder="https://…"></label>
+            <label>ou fichier audio (50 Mo max) <input id="h-audio-file" type="file" accept="audio/*"></label>
+          </div>
+          <div class="grid2">
+            <label>Vidéo — lien (fichier direct) <input id="h-video-url" type="url" placeholder="https://…"></label>
+            <label>ou fichier vidéo (200 Mo max) <input id="h-video-file" type="file" accept="video/*"></label>
+          </div>
+          <progress id="h-progress" max="1" value="0" hidden></progress>
+          <p id="hMsg" role="alert"></p>
+          <div class="row">
+            <button class="btn" id="h-submit">Publier l'homélie</button>
+            <button type="button" class="btn btn-sec" id="h-cancel" hidden>Annuler la modification</button>
+            <button type="button" class="btn btn-danger" id="h-clear">Vider le brouillon</button>
+          </div>
+        </form>
+      </section>
+
+      <!-- Mes homélies -->
+      <section id="p-mes" data-panel hidden>
+        <div class="panel"><h3 id="mes-title">Mes homélies</h3><div id="mesList"></div></div>
+      </section>
+
+      <!-- SuperAdmin : paroisses -->
+      <section id="p-paroisses" data-panel hidden>
+        <form id="paForm" class="panel stack">
+          <h3 id="pa-title">Ajouter une paroisse</h3>
+          <input type="hidden" id="pa-id">
+          <label>Nom <input id="pa-nom" placeholder="Paroisse Saint-Pierre" maxlength="150" required></label>
+          <label>Doyenné <input id="pa-doy" maxlength="150"></label>
+          <label>Localisation <input id="pa-loc" value="Kolwezi" maxlength="150"></label>
+          <div class="row"><button class="btn">Enregistrer</button><button type="button" class="btn btn-sec" id="pa-cancel" hidden>Annuler</button></div>
+        </form>
+        <div class="panel"><h3>Paroisses</h3><div id="paList"></div></div>
+      </section>
+
+      <!-- SuperAdmin : comptes -->
+      <section id="p-pretres" data-panel hidden>
+        <form id="prForm" class="panel stack">
+          <h3>Créer un compte</h3>
+          <label>Nom complet <input id="pr-nom" maxlength="150" required></label>
+          <label>Email <input id="pr-email" type="email" required></label>
+          <label>Mot de passe provisoire (8 caractères min.) <input id="pr-pwd" type="text" minlength="8" autocomplete="new-password" required></label>
+          <div class="grid2">
+            <label>Rôle <select id="pr-role"><option value="Pretre">Prêtre</option><option value="SuperAdmin">SuperAdmin</option></select></label>
+            <label>Paroisse <select id="pr-paroisse"></select></label>
+          </div>
+          <button class="btn">Créer le compte</button>
+          <p id="prMsg" role="alert"></p>
+        </form>
+        <div class="panel"><h3>Comptes</h3><div id="prList"></div></div>
+      </section>
+
+      <!-- SuperAdmin : liturgie -->
+      <section id="p-liturgie" data-panel hidden>
+        <form id="liForm" class="panel stack">
+          <h3>Liturgie du jour</h3>
+          <label>Date <input type="date" id="li-date" required></label>
+          <label>Titre liturgique <input id="li-titre" maxlength="200" placeholder="33e dimanche du temps ordinaire"></label>
+          <label>Lectures (texte saisi ou collé par l'équipe) <textarea id="li-lectures"></textarea></label>
+          <label>Lien AELF (laisser vide pour le lien automatique du jour) <input id="li-aelf" type="url" placeholder="https://www.aelf.org/…"></label>
+          <p class="notice">Vérifiez les droits de reproduction des traductions liturgiques avant de coller des textes complets ; à défaut, laissez ce champ vide et renvoyez vers AELF.</p>
+          <div class="row"><button class="btn">Enregistrer</button><button type="button" class="btn btn-danger" id="li-del">Supprimer ce jour</button></div>
+          <p id="liMsg" role="alert"></p>
+        </form>
+      </section>
+    </main>
+  </div>
+
+  <script type="module" src="admin.js"></script>
+</body>
+</html>

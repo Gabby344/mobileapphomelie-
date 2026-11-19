@@ -1,0 +1,98 @@
+<!doctype html>
+<html lang="fr">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <title>Homélies — Diocèse de Kolwezi</title>
+  <meta name="description" content="Homélies, programme de la semaine et liturgie du jour du diocèse de Kolwezi, lisibles hors-ligne.">
+  <meta name="theme-color" content="#8b1e3f">
+  <link rel="manifest" href="manifest.json">
+  <link rel="icon" href="icons/icon-192.png">
+  <link rel="apple-touch-icon" href="icons/icon-192.png">
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <header class="top">
+    <div><h1>Homélies</h1><small>Diocèse de Kolwezi</small></div>
+    <div class="top-actions">
+      <button id="installBtn" hidden>Installer</button>
+      <button id="themeBtn" aria-label="Changer de thème">Clair / sombre</button>
+      <a href="admin.html">Espace prêtre</a>
+    </div>
+  </header>
+  <div id="netBadge" class="net" role="status"></div>
+
+  <nav class="tabs" role="tablist" aria-label="Sections">
+    <button role="tab" data-tab="homelies" aria-selected="true">Homélies</button>
+    <button role="tab" data-tab="programme" aria-selected="false">Programme de la semaine</button>
+    <button role="tab" data-tab="liturgie" aria-selected="false">Liturgie du jour</button>
+  </nav>
+
+  <main class="wrap">
+    <!-- ===== Fil des homélies ===== -->
+    <section id="tab-homelies">
+      <div class="filters">
+        <select id="f-paroisse" aria-label="Paroisse"><option value="">Toutes les paroisses</option></select>
+        <select id="f-type" aria-label="Type">
+          <option value="">Tous les types</option>
+          <option value="Dimanche">Dimanche</option>
+          <option value="MesseMatinale">Messe matinale</option>
+          <option value="Solennite">Solennité</option>
+        </select>
+        <input id="f-q" type="search" placeholder="Rechercher : titre, prêtre, mot-clé…" aria-label="Recherche">
+      </div>
+      <p id="syncInfo" class="mut"></p>
+      <div id="list"></div>
+      <div class="row" style="justify-content:center"><button id="moreBtn" class="btn btn-sec" hidden>Voir plus</button></div>
+    </section>
+
+    <!-- ===== Programme de la semaine ===== -->
+    <section id="tab-programme" hidden>
+      <div class="row" style="justify-content:space-between;margin-bottom:8px">
+        <button id="weekPrev" class="btn btn-sec btn-sm">← Précédente</button>
+        <strong id="weekLabel"></strong>
+        <button id="weekNext" class="btn btn-sec btn-sm">Suivante →</button>
+      </div>
+      <select id="p-paroisse" aria-label="Paroisse" style="margin-bottom:8px"><option value="">Toutes les paroisses</option></select>
+      <div id="progList"></div>
+    </section>
+
+    <!-- ===== Liturgie du jour ===== -->
+    <section id="tab-liturgie" hidden>
+      <div class="row" style="justify-content:space-between;margin-bottom:8px">
+        <button id="litPrev" class="btn btn-sec btn-sm">← Veille</button>
+        <strong id="litLabel"></strong>
+        <button id="litNext" class="btn btn-sec btn-sm">Lendemain →</button>
+      </div>
+      <div class="panel">
+        <h2 id="litTitle"></h2>
+        <div id="litText" class="rd-body" style="font-size:1rem"></div>
+        <p style="margin-top:14px"><a id="aelfBtn" class="btn" target="_blank" rel="noopener noreferrer">Ouvrir la liturgie du jour sur AELF</a></p>
+      </div>
+      <p class="notice">Les textes liturgiques officiels proviennent de la liturgie et d'AELF. Cette application centralise surtout les homélies et le programme local ; les lectures affichées ici sont celles saisies par l'équipe.</p>
+    </section>
+  </main>
+
+  <!-- ===== Lecture complète ===== -->
+  <dialog id="reader" aria-labelledby="rd-title">
+    <div class="rd-head">
+      <button id="rd-close" aria-label="Fermer">← Retour</button>
+      <span class="row">
+        <button id="rd-minus" aria-label="Réduire le texte">A−</button>
+        <button id="rd-plus" aria-label="Agrandir le texte">A+</button>
+        <button id="rd-theme" aria-label="Changer de thème">Clair / sombre</button>
+      </span>
+    </div>
+    <div class="rd-main">
+      <span id="rd-type" class="tag"></span>
+      <h2 id="rd-title" style="font-size:1.4rem"></h2>
+      <p id="rd-meta" class="mut"></p>
+      <div id="rd-media"></div>
+      <div id="rd-body" class="rd-body"></div>
+      <p style="margin-top:24px"><button id="rd-share" class="btn">Partager sur WhatsApp</button></p>
+    </div>
+  </dialog>
+
+  <script type="module" src="app.js"></script>
+</body>
+</html>
